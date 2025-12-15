@@ -1,0 +1,15 @@
+session:
+  name: gremux-demo
+
+  windows:
+    - name: editor
+      layout: even-horizontal
+      panes:
+        - command: nvim
+        - command: pytest -f
+
+    - name: server
+      layout: even-vertical
+      panes:
+        - command: uvicorn app:app --reload
+        - command: tail -f logs/app.log

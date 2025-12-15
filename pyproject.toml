@@ -1,0 +1,11 @@
+[project]
+name = "gremux"
+version = "0.1.0"
+dependencies = [
+    "libtmux",
+    "pyyaml",
+    "pyfzf",
+]
+
+[project.scripts]
+gremux = "gremux.cli:main"
