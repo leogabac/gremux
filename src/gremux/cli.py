@@ -1,12 +1,11 @@
-from gremux.parser import Parser
+from gremux.cmds import sessionizer
 
 
 def main():
     import argparse
 
     parser = argparse.ArgumentParser("gremux")
-    sub = parser.add_subparsers(dest="cmd", required=True)
-
+    sub = parser.add_subparsers(dest="cmd", required=False)
 
     # if nothign is provided, make the default to open something like
     # tmuxify to let the user choose something from a set of common locations
@@ -39,15 +38,15 @@ def main():
         raise NotImplementedError("Work in progress!")
 
     elif args.cmd == "show":
-        parser = Parser()
-        grem = parser.grem()
-        print(grem)
-
-    elif args.cmd == "down":
-
         raise NotImplementedError("Work in progress!")
-        print("down")
-    elif args.cmd == "attach":
 
+    elif args.cmd == "load":
         raise NotImplementedError("Work in progress!")
-        print("attach")
+
+    elif args.cmd == "create":
+        raise NotImplementedError("Work in progress!")
+
+    elif args.cmd == "archive":
+        raise NotImplementedError("Work in progress!")
+    else:
+        sessionizer()

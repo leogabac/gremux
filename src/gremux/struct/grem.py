@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from typing import List
-from gremux.context import Window
+from gremux.struct.context import Window
 
 
 @dataclass
