@@ -6,13 +6,13 @@ Here is a list of todo's I am eventually going to cover.
 
 This can already go into pypi
 
-- [ ] `config up` a session from a config file
-- [ ] `config show` config file well formatted
 - [ ] `config create --default` to create a `default.yaml` under the configuration directory to drop into
 
 
 *Release 0.1.1*
 
+
+- [ ] prettier `config show` the config file to my current attached session
 - [ ] `config load` the config file to my current attached session
 - [ ] `config create --source` config file from session name
 - [ ] `config archive --save` config files into templates directory
