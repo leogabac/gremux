@@ -11,7 +11,7 @@ from gremux.core import get_places
 import gremux.struct as gst
 
 
-def sessionizer():
+def sessionizer(logger):
     """
     tmux sessionizer
     Inspired by ThePrimeagen's tool
@@ -27,7 +27,13 @@ def sessionizer():
     # get the common places and select the project directoy
     common_dirs = get_places()
     if common_dirs is None:
-        print("places.yml is not configured! Exiting.")
+        message = [
+            "places.yml is not configred! Run.",
+            "gremux places create -s SOURCE",
+            "Exiting",
+        ]
+        logger.info("\n".join(message))
+
         return None
 
     places = [Path(d).expanduser() for d in common_dirs]
@@ -40,7 +46,7 @@ def sessionizer():
 
     selection = FzfPrompt().prompt(dirs)
     if not selection:
-        print("No directory selected, exiting...")
+        logger.info("No directory selected, exiting...")
         return
 
     proj_dir: str = selection[0]

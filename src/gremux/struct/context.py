@@ -6,6 +6,12 @@ import os
 import libtmux
 
 
+class PlacesSource(Enum):
+    ZOXIDE = "zoxide"
+    DEFAULT = "default"
+    NONE = None
+
+
 class Layout(Enum):
     EVEN_HORIZONTAL = "even-horizontal"
     EVEN_VERTICAL = "even-vertical"
@@ -40,7 +46,6 @@ class Window:
         self.panes.append(pane)
 
     def apply(self, tmux_window: libtmux.Window, proj_dir: str):
-
         # ===== LAYOUT ===== #
         layout = self.layout.value
         if layout is not None:

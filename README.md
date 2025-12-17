@@ -1,102 +1,93 @@
 # gremux
 
-Another tmux session manager.
+![Static Badge](https://img.shields.io/badge/repo-gremux-blue?logo=github) ![Static Badge](https://img.shields.io/badge/status-dev-red?logo=github)
 
-I got tired of having to manually set up my `tmux` panes and windows each time I rebooted my laptop. Thus, I can spend _many hours_ automating a process that takes literal seconds.
+A declarative [tmux](https://github.com/tmux/tmux) session manager.
 
-There is a perfectly fine project called [tmuxp](https://github.com/tmux-python/tmuxp) that does exactly what this project wishes to eventually accomplish. However, as a good engineer, I felt the urge to reinvent the wheel out of boredom, and now I am too invested to quit.
+> [!NOTE]
+> This project is _very_ early in development. Only a few features are implemented, and there is a long roadmap to cover.
+> If you have any feature requests, leave an _issue_.
 
-Additionally, I do projects in order to teach myself some design patterns to _eventually_ be a better programmer and **NOT** code like a physicist.
+gremux automates the process of launching a `tmux` session exactly how you want it in a _declarative_ way. That is, given a static configuration file `grem.yaml`, `gremux` will parse it and attach you to a session that matches that setup.
+
+This project started when I got tired of having to manually set up my `tmux` panes and windows each time I rebooted my laptop. Thus, I can spend _many hours_ automating a process that takes literal seconds.
+
+Here is a list of a few similar projects:
+* [tmuxp](https://github.com/tmux-python/tmuxp): Session manager for tmux, build on libtmux.
+* [tmuxinator](https://github.com/tmuxinator/tmuxinator): Manage complex tmux sessions easily
+* [disconnected](https://github.com/austinwilcox/disconnected): Simple tmux session creator
+
+**Why choose `gremux`?**
+
+You don't have to if you don't want. That's the beauty of FOSS. This project was started as something to kill the time while waiting for my experiments during my PhD. I use it as my main tool, and it would be amazing if other people found it useful.
+
+Additionally, I do projects in order to teach myself some design patterns to _eventually_ be a better programmer. I don't mind reinventing the wheel from time to time in order to learn something new.
 
 > [!NOTE]
 > The name _gremux_.
-> I am obsessed with VTubers, and put references everywhere I can. This is a reference to [Gigi Murin](https://www.youtube.com/@holoen_gigimurin).
+> I am obsessed with VTubers, and put references everywhere I can. This is a reference to [Gigi Murin](https://www.youtube.com/@holoen_gigimurin), whose fanbase are called _grems_.
+
+## Features
+
+* Declarative YAML tmux session configuration in a per-project basis
+* `tmux-sessionizer`, inspired by [ThePrimeagen's](https://github.com/ThePrimeagen/tmux-sessionizer) script.
+
+For a list of TODOs, see the [roadmap](./test/README.md)
 
 ## Installation
 
-As this project is very early in development, there is no proper way for installation other than a local python package.
+This project is in very early stages of development, there is no proper way for installation other than a local python package.
 
-1. Create a (global) virtual environment, where your shell defaults into, e.g.
-2. Install the repo with `pip`
+1. Create a (global) virtual environment where your shell defaults into.
+2. Install the repository with `pip`
 
 ```sh 
 pip install git+https://github.com/leogabac/gremux.git
 ```
 3. Install `fzf` from your package manager.
 
-Run `gremux` to oppen the sessionizer.
+Run `gremux` to open the sessionizer.
 
 ## Setup
 
-### Default `sessionizer`
+### Common places
 
-Inspired by [tmux-sessionizer](https://github.com/ThePrimeagen/tmux-sessionizer) by The Primeagen.
-
-* Create a `places.yml` under `~/.config/gremux/places.yml` with a list of your common places
+You must create the (global config) file `~/.config/gremux/places.yaml`. To create it, run
+```sh
+gremux places create --source default
 ```
+This will create a basic `places.yaml` with your home directory. To add more places, you can manually edit the file or run
+```sh
+gremux places create --add dir1 dir2 dir3
+```
+
+Here is an example of how it should look like.
+```yaml
 places:
   - "~"
   - "~/Documents/"
+  - "~/Documents/mnt/"
+  - "~/Documents/phd/"
   - "~/Documents/projects/"
 ```
+which is intended to be the list of the common places you visit in your system. This information is used by the _sessionizer_ to know where to look
 
-If no `grem.yaml` is found in the project's root, it will default to a basic setup.
+### Configuration file
 
-### `grem.yaml` file
+tmux sessions are launched by parsing a configuration file called `grem.yaml` that is intended to be placed on your project's root. If no file is found, it will default to a single window-pane setup.
 
-The `grem.yaml` file lets you write a static setup for your project. On your project's root write something similar to
+See the [templates](./templates/) directory for some examples. Here are a few notes of the keywords
 
-```
-session:
-  name: experiments
+**session**
+- `name`: the name of the session
+- `windows`: list of windows to open
 
-  windows:
-    # ide
-    - name: ide
-      layout: null
-      panes:
-        - cwd: .
-          command:
-            - source ./.venv/bin/activate.fish
-            - nvim
 
-    # running stuff and data
-    - name: run
-      layout: main-horizontal
-      panes:
-        # running
-        - cwd: .
-          command:
-            - source .venv/bin/activate.fish
-        # data
-        - cwd: ./data
-          command:
-            - source .venv/bin/activate.fish
+**windows**
+- `name`: the name of the window
+- `layout`: layout to use. Must match [tmux window layouts](https://github.com/tmux/tmux/wiki/Getting-Started#window-layouts) or `null` to do nothing.
+- `panes`: list of panes to split
 
-    # jupyter server
-    - name: jupyter
-      layout: null
-      panes:
-        - cwd: .
-          command:
-            - source .venv/bin/activate.fish
-            - cd $HOME
-            - jupyter lab --no-browser --port=8001
-
-```
-
-> [!NOTE]
-> `cwd` is relative to project's root.
-
-## Features to implement (WIP)
-
-Here is a basic roadmap of my intentions with this project:
-
-* Have a `default.yaml` under the config dir to drop into
-* `up` a session from a config file
-* `show` config file well formated
-* `load` the config file to my current attached session
-* `create` config file from session name
-* `archive save` config files into templates directory
-* `archive set` bring a local grem file from something in the archive
-* Build a TUI to manage your configuration files
+**panes**
+- `cwd`: Working directory for the pane. Assumed to be **relative** to the project's root.
+- `command`: list of commands to execute in the current pane. They are executed sequentially.

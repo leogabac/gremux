@@ -1,0 +1,38 @@
+session:
+  name: experiments
+
+  windows:
+    # ide
+    - name: ide
+    # nulls are interpreted as "do nothing"
+      layout: null
+      panes:
+        - cwd: .
+          command:
+            - source ./.venv/bin/activate.fish
+            - nvim
+
+    # running stuff and data
+    - name: run
+      layout: main-horizontal
+      panes:
+        # running
+        - cwd: .
+          command:
+            - source .venv/bin/activate.fish
+        # data
+        - cwd: ./data
+          command:
+            - source .venv/bin/activate.fish
+
+    # jupyter server
+    - name: jupyter
+      layout: null
+      panes:
+        - cwd: .
+          command:
+            - source .venv/bin/activate.fish
+            - cd $HOME
+            - jupyter lab --no-browser --port=8001
+
+

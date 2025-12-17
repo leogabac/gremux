@@ -5,11 +5,11 @@ session:
     - name: editor
       layout: even-horizontal
       panes:
-        - command: nvim
-        - command: pytest -f
+        - command: top
+        - command: ls
 
     - name: server
       layout: even-vertical
       panes:
-        - command: uvicorn app:app --reload
-        - command: tail -f logs/app.log
+        - command: echo "this is a pane"
+        - command: echo "this is a pane"

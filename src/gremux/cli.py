@@ -1,4 +1,7 @@
+import logging
 from gremux.cmds import sessionizer
+import gremux.cmds.places as plc
+import gremux.struct as struct
 
 
 def main():
@@ -11,42 +14,48 @@ def main():
     # tmuxify to let the user choose something from a set of common locations
     # this common set might be useful to set up the first time and save on the config file?
 
-    sub.add_parser("up")
+    sub.add_parser("config")
     # create a tmux session based on local config file
 
-    sub.add_parser("show")
-    # show the config file
+    # ================================
+    # CONFIG FILE
+    # ================================
 
-    sub.add_parser("load")
-    # on my current session, apply the config file
+    # up, show, load, create, archive,
+    # create --source
+    # archive --save / --set
 
-    sub.add_parser("create")
-    # from a session, create a config file
+    # ================================
+    # PLACES FILE
+    # ================================
+    places = sub.add_parser("places")
+    places_sub = places.add_subparsers(dest="places_cmd", required=True)
 
-    sub.add_parser("archive")
-    # find the archive at ~/.confg/gremux
-
-    # gremux archive save
-    # save as "template" some config file from a project
-
-    # gremux archive set
-    # set to cur project from something saved on the archive
+    places_create = places_sub.add_parser("create", help="Create places.yml")
+    places_create.add_argument(
+        "--source",
+        "-s",
+        help="Create places.yml from source",
+    )
+    places_create.add_argument(
+        "--add",
+        "-a",
+        nargs="+",
+        metavar="ITEM",
+        help="Add to places.yml",
+    )
 
     args = parser.parse_args()
+    logger = struct.get_logger(level=logging.INFO)
 
-    if args.cmd == "up":
-        raise NotImplementedError("Work in progress!")
+    if args.cmd == "config":
+        print("Not implemented. Exiting")
 
-    elif args.cmd == "show":
-        raise NotImplementedError("Work in progress!")
+    elif args.cmd == "places":
+        if args.places_cmd == "create":
+            plc.create(args, logger)
 
-    elif args.cmd == "load":
-        raise NotImplementedError("Work in progress!")
+            # plc.create_source(args.source)
 
-    elif args.cmd == "create":
-        raise NotImplementedError("Work in progress!")
-
-    elif args.cmd == "archive":
-        raise NotImplementedError("Work in progress!")
     else:
-        sessionizer()
+        sessionizer(logger)
