@@ -44,6 +44,12 @@ def main():
         metavar="ITEM",
         help="Add to places.yml",
     )
+    places_create.add_argument(
+        "--maximum",
+        "-m",
+        type=int,
+        help="Maximum amount of items in places.yaml",
+    )
 
     args = parser.parse_args()
     logger = struct.get_logger(level=logging.INFO)

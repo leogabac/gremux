@@ -61,6 +61,13 @@ This will create a basic `places.yaml` with your home directory. To add more pla
 gremux places create --add dir1 dir2 dir3
 ```
 
+> [!TIP]
+> If you use `zoxide`, then you can choose to use the database as a source
+> ``` sh
+> gremux places create --source zoxide
+> ```
+> And optionally you can add the `--maximum N` flag to only add the first $N$ elements from the database.
+
 Here is an example of how it should look like.
 ```yaml
 places:

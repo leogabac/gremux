@@ -9,6 +9,7 @@ import libtmux
 class PlacesSource(Enum):
     ZOXIDE = "zoxide"
     DEFAULT = "default"
+    BACKUP = "backup"
     NONE = None
 
 
