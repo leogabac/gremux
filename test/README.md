@@ -17,6 +17,7 @@ This can already go into pypi
 - [ ] `config create --source` config file from session name
 - [ ] `config archive --save` config files into templates directory
 - [ ] `config archive --set` bring a local grem file from something in the archive
+- [ ] Add support for absolute paths in `cmd` panel item
 
 *Release 0.2.0*
 

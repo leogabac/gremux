@@ -98,3 +98,14 @@ See the [templates](./templates/) directory for some examples. Here are a few no
 **panes**
 - `cwd`: Working directory for the pane. Assumed to be **relative** to the project's root.
 - `command`: list of commands to execute in the current pane. They are executed sequentially.
+
+## Usage
+
+There are two basic ways to launch a session
+
+1. Run `gremux`, type your project's directory and hit `<enter>`. This will use the project's `grem.yaml` if available, otherwise, it will default to a generic one window/panel default.
+2. If you are alredy somewhere, run
+```
+gremux config up --source /path/to/grem.yaml
+```
+if no `--source` is provided, it defaults to `pwd`
