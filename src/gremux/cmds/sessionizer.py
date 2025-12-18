@@ -4,10 +4,9 @@
 
 from pathlib import Path
 from itertools import chain
-from pyfzf.pyfzf import FzfPrompt
 import libtmux
 
-from gremux.core import get_places
+from gremux.core import get_places, fzf_select
 import gremux.struct as gst
 
 
@@ -39,25 +38,26 @@ def sessionizer(logger):
     places = [Path(d).expanduser() for d in common_dirs]
 
     dirs = [
-        p
+        str(p)
         for p in chain.from_iterable(r.iterdir() for r in places if r.is_dir())
         if p.is_dir()
     ]
 
-    selection = FzfPrompt().prompt(dirs)
+    selection = fzf_select(logger, dirs)
     if not selection:
         logger.info("No directory selected, exiting...")
         return
 
-    proj_dir: str = selection[0]
+    # connect to a tmux server
+
+    server = libtmux.Server()
+
+    proj_dir: str = selection
+    dir_name = Path(proj_dir).name
 
     # pass to the parser
     parser = gst.Parser(proj_dir)
     cfg: gst.Grem = parser.grem()
-
-    # connect to a tmux server
-
-    server = libtmux.Server()
 
     # start the session with my 0th window
     match_session = server.sessions.filter(session_name=cfg.name)

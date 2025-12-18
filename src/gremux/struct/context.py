@@ -24,7 +24,7 @@ class Layout(Enum):
 @dataclass
 class Pane:
     """
-    Base class for whatever is inside a pane
+    Base class for Pane configuration
     """
 
     command: str
@@ -36,7 +36,7 @@ class Pane:
 @dataclass
 class Window:
     """
-    Base class for whatever is inside a window based on the configuration file.
+    Base class for Window Configuration
     """
 
     name: str
@@ -44,9 +44,21 @@ class Window:
     panes: List[Pane] = field(default_factory=list)
 
     def add_pane(self, pane: Pane):
+        """
+        Add a pane to the Window
+        """
         self.panes.append(pane)
 
     def apply(self, tmux_window: libtmux.Window, proj_dir: str):
+        """
+        Apply the current Window configuration to a tmux Window
+
+        Parameters:
+        ----------
+        * `tmux_window`: libtimux.Window
+        * `proj_dir`: str
+        """
+
         # ===== LAYOUT ===== #
         layout = self.layout.value
         if layout is not None:

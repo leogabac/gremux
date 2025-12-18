@@ -1,11 +1,50 @@
 [project]
 name = "gremux"
-version = "0.1.0"
-dependencies = [
-    "libtmux",
-    "pyyaml",
-    "pyfzf",
+version = "0.1.1"
+description = "A declarative tmux session manager"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "GPLv2" }
+
+authors = [
+    { name = "leogabac", email = "leogabac@proton.me" },
 ]
+
+keywords = [
+    "tmux",
+    "terminal",
+    "session-manager",
+    "cli",
+    "developer-tools",
+]
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: System :: Shells",
+    "Topic :: Utilities",
+]
+
+dependencies = [
+    "libtmux>=0.39",
+    "pyyaml>=6.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/leogabac/gremux"
+Repository = "https://github.com/leogabac/gremux"
+Issues = "https://github.com/leogabac/gremux/issues"
 
 [project.scripts]
 gremux = "gremux.cli:main"
+

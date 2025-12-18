@@ -6,15 +6,15 @@ import os
 import yaml
 
 
-def up(args, logger):
+def up(args, logger) -> None:
     if args.source is None:
         args.source = Path.cwd()
 
     up_source(args, logger)
-    return
+    return None
 
 
-def up_source(args, logger):
+def up_source(args, logger) -> None:
     parser = gst.Parser(args.source)
     cfg: gst.Grem = parser.grem()
 
@@ -27,7 +27,7 @@ def up_source(args, logger):
     return None
 
 
-def show(args, logger):
+def show(args, logger) -> None:
     if args.source is None:
         args.source = Path.cwd() / Path("grem.yaml")
 
@@ -35,7 +35,7 @@ def show(args, logger):
     return
 
 
-def show_source(args, logger):
+def show_source(args, logger) -> None:
     if not Path(args.source).exists():
         logger.info("grem.yaml was not found. Exiting.")
         return
@@ -44,16 +44,20 @@ def show_source(args, logger):
         for line in fh:
             print(line.rstrip())
 
+    return None
 
-def create(args, logger):
+
+def create(args, logger) -> None:
     if args.source is None:
         logger.info("Must provide the --source argument")
-        return
+        return None
 
     create_source(args, logger)
 
+    return None
 
-def create_source(args, logger):
+
+def create_source(args, logger) -> None:
     if args.source == "default":
         home_dir = os.environ.get("HOME")
         default_file = os.path.join(home_dir, ".config", "gremux", "default.yaml")
@@ -82,4 +86,6 @@ def create_source(args, logger):
 
         logger.info(f"Written to {default_file}")
     else:
-        logger.info(f"Feature not available. Exiting.")
+        logger.info("Feature not available. Exiting.")
+
+    return None

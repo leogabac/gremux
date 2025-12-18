@@ -2,14 +2,7 @@
 
 Here is a list of todo's I am eventually going to cover.
 
-*Release 0.1.0*
-
-This can already go into pypi
-
-- [ ] `config create --default` to create a `default.yaml` under the configuration directory to drop into
-
-
-*Release 0.1.1*
+*Release 0.1.2*
 
 
 - [ ] prettier `config show` the config file to my current attached session

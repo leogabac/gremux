@@ -42,7 +42,7 @@ This project is in very early stages of development, there is no proper way for 
 2. Install the repository with `pip`
 
 ```sh 
-pip install git+https://github.com/leogabac/gremux.git
+pip install gremux
 ```
 3. Install `fzf` from your package manager.
 
@@ -105,7 +105,20 @@ There are two basic ways to launch a session
 
 1. Run `gremux`, type your project's directory and hit `<enter>`. This will use the project's `grem.yaml` if available, otherwise, it will default to a generic one window/panel default.
 2. If you are alredy somewhere, run
-```
+```sh
 gremux config up --source /path/to/grem.yaml
 ```
 if no `--source` is provided, it defaults to `pwd`
+
+**Other useful commands**
+
+* To see the configuration that is going to be used, run
+```sh
+gremux config show
+```
+* To create the default configuration under `~/.config/gremux/default.yaml`
+```sh
+gremux config create --source default
+```
+
+

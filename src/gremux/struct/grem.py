@@ -14,9 +14,17 @@ class Grem:
     windows: List[Window] = field(default_factory=list)
 
     def add_window(self, window: Window):
+        """Add a Window to the configuration file"""
         self.windows.append(window)
 
     def launch(self, server: libtmux.Server, proj_dir):
+        """
+        Launch a tmux session with the current configuration
+
+        Parameters:
+        * `server`: libtimux.Server
+        * `proj_dir`: str
+        """
         # start the session with my 0th window
         match_session = server.sessions.filter(session_name=self.name)
         if len(match_session) > 0:

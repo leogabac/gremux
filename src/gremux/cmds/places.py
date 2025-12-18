@@ -5,7 +5,7 @@ import math
 from gremux.struct.context import PlacesSource
 
 
-def create(args, logger):
+def create(args, logger) -> None:
     if args.source is not None:
         create_source(args, logger)
     elif args.add is not None:
@@ -13,8 +13,10 @@ def create(args, logger):
     else:
         logger.info("Provide any flag --source or --add")
 
+    return None
 
-def create_source(args, logger):
+
+def create_source(args, logger) -> None:
     # a bit of validation from enum
     source = PlacesSource(args.source)
 
@@ -63,8 +65,10 @@ def create_source(args, logger):
 
     logger.info(f"Written {places_file}")
 
+    return None
 
-def create_add(args, logger):
+
+def create_add(args, logger) -> None:
     home_dir = os.environ.get("HOME")
     places_file = os.path.join(home_dir, ".config", "gremux", "places.yaml")
 
@@ -75,7 +79,7 @@ def create_add(args, logger):
             "Exiting",
         ]
         logger.info("\n".join(message))
-        return
+        return None
 
     with open(places_file) as fh:
         places = yaml.safe_load(fh)
@@ -88,3 +92,5 @@ def create_add(args, logger):
         yaml.safe_dump(places, fh)
 
     logger.info(f"Written {places_file}")
+
+    return None
