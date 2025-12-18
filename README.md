@@ -36,17 +36,18 @@ For a list of TODOs, see the [roadmap](./test/README.md)
 
 ## Installation
 
-This project is in very early stages of development, there is no proper way for installation other than a local python package.
-
-1. Create a (global) virtual environment where your shell defaults into.
-2. Install the repository with `pip`
+1. Install `fzf` from your package manager
+2. Install with `pip`
 
 ```sh 
 pip install gremux
 ```
-3. Install `fzf` from your package manager.
+or for arch-based distributions, use some AUR helper like `paru`
+```sh
+paru -S gremux
+```
 
-Run `gremux` to open the sessionizer.
+Run `gremux` to open the sessionizer or be prompted to create `places.yaml`
 
 ## Setup
 
