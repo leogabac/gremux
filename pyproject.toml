@@ -1,6 +1,6 @@
 [project]
 name = "gremux"
-version = "0.1.1"
+version = "0.1.2"
 description = "A declarative tmux session manager"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -47,4 +47,5 @@ Issues = "https://github.com/leogabac/gremux/issues"
 
 [project.scripts]
 gremux = "gremux.cli:main"
+gremux-dev = "gremux.cli:main"
 

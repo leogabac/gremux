@@ -27,7 +27,6 @@ def fzf_select(logger, dirs):
         return None
 
     try:
-        # Pass the list of dirs to fzf via stdin
         result = subprocess.run(
             ["fzf", "--prompt=Select directory: "],
             input="\n".join(dirs),
@@ -38,7 +37,20 @@ def fzf_select(logger, dirs):
         selection = result.stdout.strip()
         return selection if selection else None
 
+    except KeyboardInterrupt:
+        # User pressed Ctrl-C
+        logger.debug("fzf selection cancelled by user")
+        return None
+
+    except subprocess.CalledProcessError as e:
+        # fzf exits with:
+        # 130 -> Ctrl-C
+        # 1   -> Esc / no selection
+        if e.returncode in (1, 130):
+            logger.debug("fzf exited without selection")
+            return None
+        raise  # real error, re-raise
+
     except FileNotFoundError:
-        # fallback if fzf binary is not installed
         logger.error("fzf binary not found. Please install fzf.")
         return None

@@ -44,6 +44,7 @@ def sessionizer(logger):
     ]
 
     selection = fzf_select(logger, dirs)
+
     if not selection:
         logger.info("No directory selected, exiting...")
         return

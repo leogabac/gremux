@@ -5,6 +5,9 @@ import gremux.cmds.config as cfg
 import gremux.struct as struct
 
 
+VERSION = "0.1.2-pre"
+
+
 def main():
     import argparse
 
@@ -15,6 +18,12 @@ def main():
             "If run without any arguments, gremux launches the interactive "
             "sessionizer to select a project and attach to a tmux session."
         ),
+    )
+    parser.add_argument(
+        "-v",
+        "--version",
+        action="version",
+        version=f"%(prog)s {VERSION}",
     )
 
     sub = parser.add_subparsers(

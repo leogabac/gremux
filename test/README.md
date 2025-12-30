@@ -4,6 +4,12 @@ Here is a list of todo's I am eventually going to cover.
 
 *Release 0.1.2*
 
+Minor bug fixes
+
+- [x] Issue #1
+- [ ] Clean exit on crash when nesting tmux sessions.
+
+*Release 0.1.3*
 
 - [ ] prettier `config show` the config file to my current attached session
 - [ ] `config load` the config file to my current attached session
