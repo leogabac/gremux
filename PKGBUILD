@@ -2,7 +2,7 @@
 
 pkgname=gremux
 pkgver=0.1.1
-pkgrel=1
+pkgrel=2
 pkgdesc="Declarative tmux session manager"
 arch=('any')
 url="https://github.com/leogabac/gremux"
