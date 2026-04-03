@@ -17,6 +17,14 @@ class Grem:
         """Add a Window to the configuration file"""
         self.windows.append(window)
 
+    def to_dict(self) -> dict:
+        return {
+            "session": {
+                "name": self.name,
+                "windows": [window.to_dict() for window in self.windows],
+            }
+        }
+
     def launch(self, server: libtmux.Server, proj_dir):
         """
         Launch a tmux session with the current configuration

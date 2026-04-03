@@ -27,7 +27,7 @@ class Pane:
     Base class for Pane configuration
     """
 
-    command: str
+    command: list[str] | None = None
     cwd: str | None = None
     focus: bool = False
     env: dict[str, str] = field(default_factory=dict)
@@ -48,6 +48,23 @@ class Window:
         Add a pane to the Window
         """
         self.panes.append(pane)
+
+    def to_dict(self) -> dict:
+        panes = []
+        for pane in self.panes:
+            pane_data = {}
+
+            if pane.cwd is not None:
+                pane_data["cwd"] = pane.cwd
+
+            pane_data["command"] = pane.command
+            panes.append(pane_data)
+
+        return {
+            "name": self.name,
+            "layout": self.layout.value,
+            "panes": panes,
+        }
 
     def apply(self, tmux_window: libtmux.Window, proj_dir: str):
         """
@@ -85,11 +102,8 @@ class Window:
 
             # - send respective commands - #
             if tg_pane.command is not None:
-                # since there may be empty lists
                 for cmd in tg_pane.command:
-                    if cmd is not None:
-                        # in case there are nulls
-                        prior_pane.send_keys(cmd, enter=True)
+                    prior_pane.send_keys(cmd, enter=True)
 
             prior_pane.send_keys("clear", enter=True)
 

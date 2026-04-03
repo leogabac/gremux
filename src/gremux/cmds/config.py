@@ -29,20 +29,22 @@ def up_source(args, logger) -> None:
 
 def show(args, logger) -> None:
     if args.source is None:
-        args.source = Path.cwd() / Path("grem.yaml")
+        args.source = Path.cwd()
 
     show_source(args, logger)
     return
 
 
 def show_source(args, logger) -> None:
-    if not Path(args.source).exists():
-        logger.info("grem.yaml was not found. Exiting.")
-        return
+    parser = gst.Parser(args.source)
+    cfg: gst.Grem = parser.grem()
 
-    with open(args.source) as fh:
-        for line in fh:
-            print(line.rstrip())
+    if parser.loaded_from is None:
+        logger.info("Resolved config source: in-memory default")
+    else:
+        logger.info(f"Resolved config source: {parser.loaded_from}")
+
+    print(yaml.safe_dump(cfg.to_dict(), sort_keys=False).rstrip())
 
     return None
 

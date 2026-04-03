@@ -5,7 +5,7 @@ import gremux.cmds.config as cfg
 import gremux.struct as struct
 
 
-VERSION = "0.1.2-pre"
+VERSION = "0.1.2-dev"
 
 
 def main():
