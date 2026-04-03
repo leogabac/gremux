@@ -121,5 +121,9 @@ gremux config show
 ```sh
 gremux config create --source default
 ```
-
+* To copy a saved template from `~/.config/gremux/templates/` into the current project as `grem.yaml`
+```sh
+gremux config use NAME
+```
+  Add `--force` to overwrite an existing local `grem.yaml`.
 

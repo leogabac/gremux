@@ -88,6 +88,25 @@ def main():
         ),
     )
 
+    config_use = config_sub.add_parser(
+        "use",
+        help="Copy a saved template into the current project",
+        description=(
+            "Copy ~/.config/gremux/templates/<name>.yaml into the current "
+            "directory as grem.yaml."
+        ),
+    )
+    config_use.add_argument(
+        "name",
+        metavar="NAME",
+        help="Template name to copy from ~/.config/gremux/templates/",
+    )
+    config_use.add_argument(
+        "--force",
+        action="store_true",
+        help="Overwrite an existing local grem.yaml",
+    )
+
     # ================================
     # PLACES COMMANDS
     # ================================
@@ -148,6 +167,8 @@ def main():
             cfg.show(args, logger)
         elif args.config_cmd == "create":
             cfg.create(args, logger)
+        elif args.config_cmd == "use":
+            cfg.use(args, logger)
 
     elif args.cmd == "places":
         if args.places_cmd == "create":

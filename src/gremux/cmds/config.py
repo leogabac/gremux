@@ -3,11 +3,16 @@ from pathlib import Path
 import gremux.struct as gst
 import libtmux
 import os
+import shutil
 import yaml
 
 
 def _config_dir() -> Path:
     return Path.home() / ".config" / "gremux"
+
+
+def _templates_dir() -> Path:
+    return _config_dir() / "templates"
 
 
 def up(args, logger) -> None:
@@ -95,5 +100,26 @@ def create_source(args, logger) -> None:
         logger.info(f"Written to {default_file}")
     else:
         logger.info("Feature not available. Exiting.")
+
+    return None
+
+
+def use(args, logger) -> None:
+    template_file = _templates_dir() / f"{args.name}.yaml"
+    target_file = Path.cwd() / "grem.yaml"
+
+    if not template_file.exists():
+        logger.error(f"Template not found: {template_file}")
+        return None
+
+    if target_file.exists() and not args.force:
+        logger.error(
+            f"Refusing to overwrite existing file: {target_file}. "
+            "Use --force to replace it."
+        )
+        return None
+
+    shutil.copyfile(template_file, target_file)
+    logger.info(f"Copied {template_file} to {target_file}")
 
     return None
