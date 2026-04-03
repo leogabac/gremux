@@ -4,7 +4,6 @@ import gremux.struct as gst
 import libtmux
 import os
 import shlex
-import shutil
 import subprocess
 import yaml
 
@@ -15,6 +14,28 @@ def _config_dir() -> Path:
 
 def _templates_dir() -> Path:
     return _config_dir() / "templates"
+
+
+def _load_yaml_file(path: Path) -> dict | None:
+    with path.open() as fh:
+        return yaml.safe_load(fh)
+
+
+def _write_yaml_file(path: Path, data: dict) -> None:
+    with path.open("w") as fh:
+        yaml.safe_dump(data, fh, sort_keys=False)
+
+
+def _set_session_name(data: dict | None, name: str) -> dict:
+    if not isinstance(data, dict):
+        raise ValueError("Config file must contain a top-level mapping")
+
+    session = data.get("session")
+    if not isinstance(session, dict):
+        raise ValueError("Config file must define a top-level 'session' mapping")
+
+    session["name"] = name
+    return data
 
 
 def up(args, logger) -> None:
@@ -121,7 +142,14 @@ def use(args, logger) -> None:
         )
         return None
 
-    shutil.copyfile(template_file, target_file)
+    try:
+        data = _load_yaml_file(template_file)
+        data = _set_session_name(data, Path.cwd().name)
+    except (OSError, yaml.YAMLError, ValueError) as exc:
+        logger.error(f"Failed to prepare template config: {exc}")
+        return None
+
+    _write_yaml_file(target_file, data)
     logger.info(f"Copied {template_file} to {target_file}")
 
     return None
@@ -164,7 +192,14 @@ def save(args, logger) -> None:
         )
         return None
 
-    shutil.copyfile(source_file, target_file)
+    try:
+        data = _load_yaml_file(source_file)
+        data = _set_session_name(data, args.name)
+    except (OSError, yaml.YAMLError, ValueError) as exc:
+        logger.error(f"Failed to prepare local config: {exc}")
+        return None
+
+    _write_yaml_file(target_file, data)
     logger.info(f"Copied {source_file} to {target_file}")
 
     return None

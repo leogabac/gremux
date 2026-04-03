@@ -126,6 +126,7 @@ gremux config create --source default
 gremux config use NAME
 ```
   Add `--force` to overwrite an existing local `grem.yaml`.
+  When copied in, `session.name` is rewritten to the current directory name.
 * To list saved templates
 ```sh
 gremux config list
@@ -135,6 +136,7 @@ gremux config list
 gremux config save NAME
 ```
   Add `--force` to overwrite an existing saved template.
+  When saved, `session.name` is rewritten to `NAME`.
 * To open `~/.config/gremux/` in your editor
 ```sh
 gremux config edit
