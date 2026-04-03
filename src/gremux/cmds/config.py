@@ -6,6 +6,10 @@ import os
 import yaml
 
 
+def _config_dir() -> Path:
+    return Path.home() / ".config" / "gremux"
+
+
 def up(args, logger) -> None:
     if args.source is None:
         args.source = Path.cwd()
@@ -61,8 +65,9 @@ def create(args, logger) -> None:
 
 def create_source(args, logger) -> None:
     if args.source == "default":
-        home_dir = os.environ.get("HOME")
-        default_file = os.path.join(home_dir, ".config", "gremux", "default.yaml")
+        config_dir = _config_dir()
+        config_dir.mkdir(parents=True, exist_ok=True)
+        default_file = config_dir / "default.yaml"
 
         default = {
             "session": {
@@ -83,7 +88,7 @@ def create_source(args, logger) -> None:
             }
         }
 
-        with open(default_file, "w") as fh:
+        with default_file.open("w") as fh:
             yaml.safe_dump(default, fh)
 
         logger.info(f"Written to {default_file}")

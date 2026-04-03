@@ -2,7 +2,12 @@ import os
 import yaml
 import subprocess
 import math
+from pathlib import Path
 from gremux.struct.context import PlacesSource
+
+
+def _config_dir() -> Path:
+    return Path.home() / ".config" / "gremux"
 
 
 def create(args, logger) -> None:
@@ -26,8 +31,10 @@ def create_source(args, logger) -> None:
         # nothing will ever be greater than this
         max_items = math.inf
 
-    home_dir = os.environ.get("HOME")
-    places_file = os.path.join(home_dir, ".config", "gremux", "places.yaml")
+    home_dir = str(Path.home())
+    config_dir = _config_dir()
+    config_dir.mkdir(parents=True, exist_ok=True)
+    places_file = config_dir / "places.yaml"
 
     # ===== ZOXIDE SUPPORT ===== #
     if source == PlacesSource.ZOXIDE:
@@ -49,8 +56,8 @@ def create_source(args, logger) -> None:
 
     # ===== BACKUP SUPPORT ===== #
     elif source == PlacesSource.BACKUP:
-        backup_file = os.path.join(home_dir, ".config", "gremux", "places.bak")
-        with open(backup_file) as fh:
+        backup_file = config_dir / "places.bak"
+        with backup_file.open() as fh:
             places = yaml.safe_load(fh)
 
         for path in places["places"]:
@@ -60,7 +67,7 @@ def create_source(args, logger) -> None:
     elif source == PlacesSource.DEFAULT:
         places = {"places": [home_dir]}
 
-    with open(places_file, "w") as fh:
+    with places_file.open("w") as fh:
         yaml.safe_dump(places, fh)
 
     logger.info(f"Written {places_file}")
@@ -69,10 +76,9 @@ def create_source(args, logger) -> None:
 
 
 def create_add(args, logger) -> None:
-    home_dir = os.environ.get("HOME")
-    places_file = os.path.join(home_dir, ".config", "gremux", "places.yaml")
+    places_file = _config_dir() / "places.yaml"
 
-    if not os.path.exists(places_file):
+    if not places_file.exists():
         message = [
             "places.yml is not configred! Run.",
             "gremux places create -s SOURCE",
@@ -81,14 +87,14 @@ def create_add(args, logger) -> None:
         logger.info("\n".join(message))
         return None
 
-    with open(places_file) as fh:
+    with places_file.open() as fh:
         places = yaml.safe_load(fh)
 
     for path in args.add:
         places["places"].append(path)
         logger.info(f"Added {path} to places.yaml")
 
-    with open(places_file, "w") as fh:
+    with places_file.open("w") as fh:
         yaml.safe_dump(places, fh)
 
     logger.info(f"Written {places_file}")
