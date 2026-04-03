@@ -54,35 +54,13 @@ def sessionizer(logger):
     server = libtmux.Server()
 
     proj_dir: str = selection
-    dir_name = Path(proj_dir).name
 
-    # pass to the parser
+    # Sessionizer is responsible for project selection only.
+    # Session creation/attachment belongs to the Grem model so that
+    # `gremux` and `gremux config up` share the same launch path.
     parser = gst.Parser(proj_dir)
     cfg: gst.Grem = parser.grem()
 
-    # start the session with my 0th window
-    match_session = server.sessions.filter(session_name=cfg.name)
-    if len(match_session) > 0:
-        match_session[0].attach(exit_=True)
-        return None
-
-    session = server.new_session(
-        session_name=cfg.name,
-        kill_session=True,  # replace if it already exists
-        attach=False,
-        window_name=cfg.windows[0].name,
-        start_directory=proj_dir,
-    )
-
-    # setup and create rest of the windows
-    for i, cfg_window in enumerate(cfg.windows):
-        if i == 0:
-            tmux_window = session.windows[0]
-        else:
-            tmux_window = session.new_window(window_name=cfg_window.name)
-
-        cfg_window.apply(tmux_window, proj_dir)
-
-    session.attach(exit_=True)
+    cfg.launch(server, proj_dir)
 
     return None
