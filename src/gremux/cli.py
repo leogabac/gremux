@@ -107,6 +107,37 @@ def main():
         help="Overwrite an existing local grem.yaml",
     )
 
+    config_list = config_sub.add_parser(
+        "list",
+        help="List saved templates",
+        description="List template names under ~/.config/gremux/templates/.",
+    )
+
+    config_save = config_sub.add_parser(
+        "save",
+        help="Save the current project's grem.yaml as a template",
+        description=(
+            "Copy the current directory's grem.yaml into "
+            "~/.config/gremux/templates/<name>.yaml."
+        ),
+    )
+    config_save.add_argument(
+        "name",
+        metavar="NAME",
+        help="Template name to write under ~/.config/gremux/templates/",
+    )
+    config_save.add_argument(
+        "--force",
+        action="store_true",
+        help="Overwrite an existing saved template",
+    )
+
+    config_sub.add_parser(
+        "edit",
+        help="Open the gremux config directory in your editor",
+        description="Open ~/.config/gremux/ in the editor defined by $EDITOR.",
+    )
+
     # ================================
     # PLACES COMMANDS
     # ================================
@@ -167,6 +198,12 @@ def main():
             cfg.show(args, logger)
         elif args.config_cmd == "create":
             cfg.create(args, logger)
+        elif args.config_cmd == "list":
+            cfg.list_templates(args, logger)
+        elif args.config_cmd == "save":
+            cfg.save(args, logger)
+        elif args.config_cmd == "edit":
+            cfg.edit(args, logger)
         elif args.config_cmd == "use":
             cfg.use(args, logger)
 

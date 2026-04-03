@@ -3,7 +3,9 @@ from pathlib import Path
 import gremux.struct as gst
 import libtmux
 import os
+import shlex
 import shutil
+import subprocess
 import yaml
 
 
@@ -121,5 +123,69 @@ def use(args, logger) -> None:
 
     shutil.copyfile(template_file, target_file)
     logger.info(f"Copied {template_file} to {target_file}")
+
+    return None
+
+
+def list_templates(args, logger) -> None:
+    templates_dir = _templates_dir()
+
+    if not templates_dir.exists():
+        logger.info(f"No templates directory found: {templates_dir}")
+        return None
+
+    templates = sorted(path.stem for path in templates_dir.glob("*.yaml") if path.is_file())
+
+    if not templates:
+        logger.info(f"No templates found in {templates_dir}")
+        return None
+
+    for name in templates:
+        print(name)
+
+    return None
+
+
+def save(args, logger) -> None:
+    source_file = Path.cwd() / "grem.yaml"
+    templates_dir = _templates_dir()
+    target_file = templates_dir / f"{args.name}.yaml"
+
+    if not source_file.exists():
+        logger.error(f"Local config not found: {source_file}")
+        return None
+
+    templates_dir.mkdir(parents=True, exist_ok=True)
+
+    if target_file.exists() and not args.force:
+        logger.error(
+            f"Refusing to overwrite existing template: {target_file}. "
+            "Use --force to replace it."
+        )
+        return None
+
+    shutil.copyfile(source_file, target_file)
+    logger.info(f"Copied {source_file} to {target_file}")
+
+    return None
+
+
+def edit(args, logger) -> None:
+    editor = os.environ.get("EDITOR")
+    if not editor:
+        logger.error("EDITOR is not set. Set $EDITOR to launch your preferred editor.")
+        return None
+
+    config_dir = _config_dir()
+    config_dir.mkdir(parents=True, exist_ok=True)
+
+    cmd = shlex.split(editor) + [str(config_dir)]
+
+    try:
+        subprocess.run(cmd, check=True)
+    except FileNotFoundError:
+        logger.error(f"Editor binary not found: {cmd[0]}")
+    except subprocess.CalledProcessError as exc:
+        logger.error(f"Editor exited with code {exc.returncode}.")
 
     return None

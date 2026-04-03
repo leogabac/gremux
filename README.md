@@ -126,4 +126,17 @@ gremux config create --source default
 gremux config use NAME
 ```
   Add `--force` to overwrite an existing local `grem.yaml`.
-
+* To list saved templates
+```sh
+gremux config list
+```
+* To save the current project's `grem.yaml` into `~/.config/gremux/templates/`
+```sh
+gremux config save NAME
+```
+  Add `--force` to overwrite an existing saved template.
+* To open `~/.config/gremux/` in your editor
+```sh
+gremux config edit
+```
+  This uses the editor defined by `$EDITOR`.
