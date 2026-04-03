@@ -115,6 +115,10 @@ To attach to an already running tmux session interactively, run
 ```sh
 gremux attach
 ```
+To use tmux's default attach behavior directly, run
+```sh
+gremux attach --last
+```
 
 **Other useful commands**
 

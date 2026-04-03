@@ -188,12 +188,18 @@ def main():
         help="Maximum number of entries to include when using a dynamic source",
     )
 
-    sub.add_parser(
+    attach_cmd = sub.add_parser(
         "attach",
         help="Interactively attach to an existing tmux session",
         description=(
             "Show active tmux sessions and attach to the one you select."
         ),
+    )
+    attach_cmd.add_argument(
+        "--last",
+        "-l",
+        action="store_true",
+        help="Use tmux's default attach behavior instead of showing a picker",
     )
 
     args = parser.parse_args()
@@ -221,7 +227,7 @@ def main():
             plc.create(args, logger)
 
     elif args.cmd == "attach":
-        attach(logger)
+        attach(args, logger)
 
     else:
         # Default behavior: sessionizer

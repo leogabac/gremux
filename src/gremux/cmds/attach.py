@@ -1,7 +1,17 @@
 import libtmux
+import subprocess
 
 
-def attach(logger) -> None:
+def attach(args, logger) -> None:
+    if args.last:
+        try:
+            subprocess.run(["tmux", "attach-session"], check=True)
+        except FileNotFoundError:
+            logger.error("tmux binary not found. Please install tmux.")
+        except subprocess.CalledProcessError as exc:
+            logger.error(f"tmux attach failed with exit code {exc.returncode}.")
+        return None
+
     try:
         import questionary
     except ImportError:
