@@ -1,5 +1,6 @@
 import logging
 from gremux.cmds import sessionizer
+from gremux.cmds.attach import attach
 import gremux.cmds.places as plc
 import gremux.cmds.config as cfg
 import gremux.struct as struct
@@ -187,6 +188,14 @@ def main():
         help="Maximum number of entries to include when using a dynamic source",
     )
 
+    sub.add_parser(
+        "attach",
+        help="Interactively attach to an existing tmux session",
+        description=(
+            "Show active tmux sessions and attach to the one you select."
+        ),
+    )
+
     args = parser.parse_args()
 
     logger = struct.get_logger(level=logging.INFO)
@@ -210,6 +219,9 @@ def main():
     elif args.cmd == "places":
         if args.places_cmd == "create":
             plc.create(args, logger)
+
+    elif args.cmd == "attach":
+        attach(logger)
 
     else:
         # Default behavior: sessionizer

@@ -38,6 +38,7 @@ classifiers = [
 dependencies = [
     "libtmux>=0.39",
     "pyyaml>=6.0",
+    "questionary>=2.0",
 ]
 
 [project.urls]

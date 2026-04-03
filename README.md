@@ -111,6 +111,11 @@ gremux config up --source /path/to/grem.yaml
 ```
 if no `--source` is provided, it defaults to `pwd`
 
+To attach to an already running tmux session interactively, run
+```sh
+gremux attach
+```
+
 **Other useful commands**
 
 * To see the configuration that is going to be used, run
