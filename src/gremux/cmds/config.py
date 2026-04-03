@@ -16,6 +16,14 @@ def _templates_dir() -> Path:
     return _config_dir() / "templates"
 
 
+def _template_names() -> list[str]:
+    templates_dir = _templates_dir()
+    if not templates_dir.exists():
+        return []
+
+    return sorted(path.stem for path in templates_dir.glob("*.yaml") if path.is_file())
+
+
 def _load_yaml_file(path: Path) -> dict | None:
     with path.open() as fh:
         return yaml.safe_load(fh)
@@ -128,7 +136,34 @@ def create_source(args, logger) -> None:
 
 
 def use(args, logger) -> None:
-    template_file = _templates_dir() / f"{args.name}.yaml"
+    template_name = args.name
+
+    if args.interactive:
+        try:
+            import questionary
+        except ImportError:
+            logger.error("questionary is not installed. Install gremux with its dependencies to use `config use --interactive`.")
+            return None
+
+        templates = _template_names()
+        if not templates:
+            logger.info(f"No templates found in {_templates_dir()}")
+            return None
+
+        template_name = questionary.select(
+            "Choose a template:",
+            choices=templates,
+        ).ask()
+
+        if template_name is None:
+            logger.info("No template selected, exiting...")
+            return None
+
+    if template_name is None:
+        logger.error("Must provide NAME or use --interactive.")
+        return None
+
+    template_file = _templates_dir() / f"{template_name}.yaml"
     target_file = Path.cwd() / "grem.yaml"
 
     if not template_file.exists():

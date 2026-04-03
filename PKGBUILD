@@ -1,8 +1,8 @@
 # Maintainer: Leonardo Alanis <leogabac@users.noreply.github.com>
 
 pkgname=gremux
-pkgver=0.1.1
-pkgrel=2
+pkgver=0.1.3
+pkgrel=1
 pkgdesc="Declarative tmux session manager"
 arch=('any')
 url="https://github.com/leogabac/gremux"
@@ -11,6 +11,7 @@ depends=(
   'python'
   'python-libtmux'
   'python-pyyaml'
+  'python-questionary'
   'tmux'
   'fzf'
 )

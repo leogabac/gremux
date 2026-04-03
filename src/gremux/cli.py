@@ -6,7 +6,7 @@ import gremux.cmds.config as cfg
 import gremux.struct as struct
 
 
-VERSION = "0.1.2-dev"
+VERSION = "0.1.3"
 
 
 def main():
@@ -100,7 +100,14 @@ def main():
     config_use.add_argument(
         "name",
         metavar="NAME",
+        nargs="?",
         help="Template name to copy from ~/.config/gremux/templates/",
+    )
+    config_use.add_argument(
+        "--interactive",
+        "-i",
+        action="store_true",
+        help="Choose a template interactively instead of passing NAME",
     )
     config_use.add_argument(
         "--force",

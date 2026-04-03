@@ -1,11 +1,13 @@
 # gremux
 
-![Static Badge](https://img.shields.io/badge/repo-gremux-blue?logo=github) ![Static Badge](https://img.shields.io/badge/status-dev-red?logo=github)
+![Static Badge](https://img.shields.io/badge/repo-gremux-blue?logo=github) ![Static Badge](https://img.shields.io/badge/status-alpha-orange?logo=github)
+
+![PyPI - Version](https://img.shields.io/pypi/v/gremux) ![AUR Version](https://img.shields.io/aur/version/gremux)
 
 A declarative [tmux](https://github.com/tmux/tmux) session manager.
 
 > [!NOTE]
-> This project is _very_ early in development. Only a few features are implemented, and there is a long roadmap to cover.
+> This project is in development. Basic features are implemented, but there is still a long roadmap to cover.
 > If you have any feature requests, leave an _issue_.
 
 gremux automates the process of launching a `tmux` session exactly how you want it in a _declarative_ way. That is, given a static configuration file `grem.yaml`, `gremux` will parse it and attach you to a session that matches that setup.
@@ -29,15 +31,16 @@ Additionally, I do projects in order to teach myself some design patterns to _ev
 
 ## Features
 
-* Declarative YAML tmux session configuration in a per-project basis
-* `tmux-sessionizer`, inspired by [ThePrimeagen's](https://github.com/ThePrimeagen/tmux-sessionizer) script.
-
-For a list of TODOs, see the [roadmap](./test/README.md)
+* Declarative YAML tmux session configuration on a per-project basis
+* Interactive project sessionizer inspired by [ThePrimeagen's](https://github.com/ThePrimeagen/tmux-sessionizer) script
+* Saved config templates under `~/.config/gremux/templates/`
+* Interactive picker for attaching to existing tmux sessions
 
 ## Installation
 
-1. Install `fzf` from your package manager
+1. Install `tmux` and `fzf` from your package manager
 2. Install with `pip`
+3. Optional: install the `python-questionary` package.
 
 ```sh 
 pip install gremux
@@ -48,6 +51,8 @@ paru -S gremux
 ```
 
 Run `gremux` to open the sessionizer or be prompted to create `places.yaml`
+
+If you want to use the interactive attach picker, make sure `questionary` is installed as well.
 
 ## Setup
 
@@ -98,11 +103,11 @@ See the [templates](./templates/) directory for some examples. Here are a few no
 
 **panes**
 - `cwd`: Working directory for the pane. Assumed to be **relative** to the project's root.
-- `command`: list of commands to execute in the current pane. They are executed sequentially.
+- `command`: command or list of commands to execute in the current pane. They are executed sequentially.
 
 ## Usage
 
-There are two basic ways to launch a session
+There are two basic ways to launch a session:
 
 1. Run `gremux`, type your project's directory and hit `<enter>`. This will use the project's `grem.yaml` if available, otherwise, it will default to a generic one window/panel default.
 2. If you are alredy somewhere, run
@@ -120,7 +125,31 @@ To use tmux's default attach behavior directly, run
 gremux attach --last
 ```
 
-**Other useful commands**
+## Template Workflow
+
+Save the current project's `grem.yaml` as a reusable template:
+```sh
+gremux config save NAME
+```
+
+Bring that template into another project:
+```sh
+gremux config use NAME
+```
+
+Or choose one interactively:
+```sh
+gremux config use --interactive
+```
+
+List available templates:
+```sh
+gremux config list
+```
+
+When saving, `session.name` is rewritten to the template name. When using a template, `session.name` is rewritten to the current directory name.
+
+## Other Useful Commands
 
 * To see the configuration that is going to be used, run
 ```sh
@@ -134,12 +163,9 @@ gremux config create --source default
 ```sh
 gremux config use NAME
 ```
+  Or choose interactively with `gremux config use --interactive`.
   Add `--force` to overwrite an existing local `grem.yaml`.
   When copied in, `session.name` is rewritten to the current directory name.
-* To list saved templates
-```sh
-gremux config list
-```
 * To save the current project's `grem.yaml` into `~/.config/gremux/templates/`
 ```sh
 gremux config save NAME
