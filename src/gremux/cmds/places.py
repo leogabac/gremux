@@ -22,8 +22,11 @@ def create(args, logger) -> None:
 
 
 def create_source(args, logger) -> None:
-    # a bit of validation from enum
-    source = PlacesSource(args.source)
+    try:
+        source = PlacesSource(args.source)
+    except ValueError:
+        logger.error("Invalid places source. Use one of: default, backup, zoxide.")
+        return None
 
     if args.maximum is not None:
         max_items = int(args.maximum)
@@ -38,12 +41,20 @@ def create_source(args, logger) -> None:
 
     # ===== ZOXIDE SUPPORT ===== #
     if source == PlacesSource.ZOXIDE:
-        result = subprocess.run(
-            ["zoxide", "query", "--list"],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
+        try:
+            result = subprocess.run(
+                ["zoxide", "query", "--list"],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+        except FileNotFoundError:
+            logger.error("zoxide binary not found. Please install zoxide or use --source default.")
+            return None
+        except subprocess.CalledProcessError as exc:
+            logger.error(f"zoxide query failed with exit code {exc.returncode}.")
+            return None
+
         result = result.stdout.strip().splitlines()
 
         if len(result) > max_items:
@@ -57,6 +68,10 @@ def create_source(args, logger) -> None:
     # ===== BACKUP SUPPORT ===== #
     elif source == PlacesSource.BACKUP:
         backup_file = config_dir / "places.bak"
+        if not backup_file.exists():
+            logger.error(f"Backup file not found: {backup_file}")
+            return None
+
         with backup_file.open() as fh:
             places = yaml.safe_load(fh)
 
@@ -89,6 +104,10 @@ def create_add(args, logger) -> None:
 
     with places_file.open() as fh:
         places = yaml.safe_load(fh)
+
+    if not isinstance(places, dict) or not isinstance(places.get("places"), list):
+        logger.error(f"Invalid places file format: {places_file}")
+        return None
 
     for path in args.add:
         places["places"].append(path)

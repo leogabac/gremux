@@ -22,11 +22,12 @@ def up_source(args, logger) -> None:
     parser = gst.Parser(args.source)
     cfg: gst.Grem = parser.grem()
 
-    # connect to a tmux server
-
-    server = libtmux.Server()
-
-    cfg.launch(server, args.source)
+    try:
+        server = libtmux.Server()
+        cfg.launch(server, parser.path)
+    except libtmux.exc.LibTmuxException as exc:
+        logger.error(f"tmux is unavailable or returned an error: {exc}")
+        return None
 
     return None
 

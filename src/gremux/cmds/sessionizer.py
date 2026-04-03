@@ -5,6 +5,7 @@
 from pathlib import Path
 from itertools import chain
 import libtmux
+import yaml
 
 from gremux.core import get_places, fzf_select
 import gremux.struct as gst
@@ -24,7 +25,12 @@ def sessionizer(logger):
     """
 
     # get the common places and select the project directoy
-    common_dirs = get_places()
+    try:
+        common_dirs = get_places()
+    except (yaml.YAMLError, ValueError) as exc:
+        logger.error(f"Failed to read places.yaml: {exc}")
+        return None
+
     if common_dirs is None:
         message = [
             "places.yml is not configred! Run.",
@@ -51,8 +57,6 @@ def sessionizer(logger):
 
     # connect to a tmux server
 
-    server = libtmux.Server()
-
     proj_dir: str = selection
 
     # Sessionizer is responsible for project selection only.
@@ -61,6 +65,11 @@ def sessionizer(logger):
     parser = gst.Parser(proj_dir)
     cfg: gst.Grem = parser.grem()
 
-    cfg.launch(server, proj_dir)
+    try:
+        server = libtmux.Server()
+        cfg.launch(server, proj_dir)
+    except libtmux.exc.LibTmuxException as exc:
+        logger.error(f"tmux is unavailable or returned an error: {exc}")
+        return None
 
     return None

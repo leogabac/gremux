@@ -2,6 +2,7 @@ import os
 import yaml
 from typing import List
 import subprocess
+from pathlib import Path
 
 
 def get_places() -> List:
@@ -9,16 +10,22 @@ def get_places() -> List:
     Load the places.yaml file and return the list of common places in the system.
     """
 
-    home_dir = os.environ.get("HOME")
-    places_file = os.path.join(home_dir, ".config", "gremux", "places.yaml")
+    places_file = Path.home() / ".config" / "gremux" / "places.yaml"
 
-    if not os.path.exists(places_file):
+    if not places_file.exists():
         return None
 
-    with open(places_file) as fh:
+    with places_file.open() as fh:
         places = yaml.safe_load(fh)
 
-    return places["places"]
+    if not isinstance(places, dict):
+        raise ValueError("places.yaml must contain a top-level mapping")
+
+    result = places.get("places")
+    if not isinstance(result, list):
+        raise ValueError("places.yaml must define a list under 'places'")
+
+    return result
 
 
 def fzf_select(logger, dirs):
@@ -49,7 +56,8 @@ def fzf_select(logger, dirs):
         if e.returncode in (1, 130):
             logger.debug("fzf exited without selection")
             return None
-        raise  # real error, re-raise
+        logger.error(f"fzf failed with exit code {e.returncode}.")
+        return None
 
     except FileNotFoundError:
         logger.error("fzf binary not found. Please install fzf.")
