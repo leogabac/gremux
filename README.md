@@ -40,7 +40,7 @@ Additionally, I do projects in order to teach myself some design patterns to _ev
 
 1. Install `tmux` and `fzf` from your package manager
 2. Install with `pip`
-3. Optional: install the `python-questionary` package.
+3. Optional: install the `questionary` package.
 
 ```sh 
 pip install gremux
@@ -52,7 +52,7 @@ paru -S gremux
 
 Run `gremux` to open the sessionizer or be prompted to create `places.yaml`
 
-If you want to use the interactive attach picker, make sure `questionary` is installed as well.
+If you want to use the interactive attach picker or `config use --interactive`, make sure `questionary` is installed as well.
 
 ## Setup
 
@@ -159,19 +159,6 @@ gremux config show
 ```sh
 gremux config create --source default
 ```
-* To copy a saved template from `~/.config/gremux/templates/` into the current project as `grem.yaml`
-```sh
-gremux config use NAME
-```
-  Or choose interactively with `gremux config use --interactive`.
-  Add `--force` to overwrite an existing local `grem.yaml`.
-  When copied in, `session.name` is rewritten to the current directory name.
-* To save the current project's `grem.yaml` into `~/.config/gremux/templates/`
-```sh
-gremux config save NAME
-```
-  Add `--force` to overwrite an existing saved template.
-  When saved, `session.name` is rewritten to `NAME`.
 * To open `~/.config/gremux/` in your editor
 ```sh
 gremux config edit
