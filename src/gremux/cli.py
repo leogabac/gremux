@@ -110,6 +110,34 @@ def main():
         help="Export tmux pane startup commands as replay commands.",
     )
 
+    config_diff = config_sub.add_parser(
+        "diff-session",
+        parents=[source_parent],
+        help="Compare the current tmux session with grem.yaml",
+    )
+
+    config_update = config_sub.add_parser(
+        "update-session",
+        parents=[source_parent],
+        help="Update grem.yaml from the current tmux session",
+    )
+    config_update.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Print the merged configuration without writing it.",
+    )
+
+    config_sync = config_sub.add_parser(
+        "sync",
+        parents=[source_parent],
+        help="Recreate a tmux session from grem.yaml",
+    )
+    config_sync.add_argument(
+        "--replace",
+        action="store_true",
+        help="Replace the running session instead of attaching to it.",
+    )
+
     config_use = config_sub.add_parser(
         "use",
         help="Copy a saved template into the current project",
@@ -249,6 +277,12 @@ def main():
             cfg.edit(args, logger)
         elif args.config_cmd == "use":
             cfg.use(args, logger)
+        elif args.config_cmd == "diff-session":
+            cfg.diff_session(args, logger)
+        elif args.config_cmd == "update-session":
+            cfg.update_session(args, logger)
+        elif args.config_cmd == "sync":
+            cfg.sync(args, logger)
 
     elif args.cmd == "places":
         if args.places_cmd == "create":

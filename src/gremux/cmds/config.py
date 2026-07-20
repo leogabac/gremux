@@ -5,6 +5,7 @@ import libtmux
 import os
 import shlex
 import subprocess
+from copy import deepcopy
 import yaml
 
 
@@ -265,6 +266,168 @@ def _create_from_current_session(args, logger) -> None:
         return None
 
     logger.info(f"Exported current tmux session to {target_file}")
+    return None
+
+
+def _local_config_file(source=None) -> Path:
+    if source is None:
+        return _project_root() / "grem.yaml"
+
+    source_path = Path(source).expanduser()
+    if source_path.suffix in {".yaml", ".yml"}:
+        return source_path.resolve()
+    return source_path.resolve() / "grem.yaml"
+
+
+def _structure(data: dict) -> dict:
+    """Keep the replay-relevant part of a configuration for comparison."""
+    session = data["session"]
+    windows = []
+    for window in session["windows"]:
+        windows.append(
+            {
+                "name": window["name"],
+                "layout": window.get("layout"),
+                "panes": [pane.get("cwd") for pane in window["panes"]],
+            }
+        )
+    return {"name": session["name"], "windows": windows}
+
+
+def _session_diff(config_data: dict, live_data: dict) -> list[str]:
+    expected = _structure(config_data)
+    actual = _structure(live_data)
+    changes = []
+
+    if expected["name"] != actual["name"]:
+        changes.append(f"session name: config={expected['name']!r}, live={actual['name']!r}")
+
+    expected_windows = {window["name"]: window for window in expected["windows"]}
+    actual_windows = {window["name"]: window for window in actual["windows"]}
+    for name in expected_windows.keys() - actual_windows.keys():
+        changes.append(f"window missing from live session: {name!r}")
+    for name in actual_windows.keys() - expected_windows.keys():
+        changes.append(f"window missing from config: {name!r}")
+
+    for name in expected_windows.keys() & actual_windows.keys():
+        configured = expected_windows[name]
+        live = actual_windows[name]
+        if configured["layout"] != live["layout"]:
+            changes.append(
+                f"window {name!r} layout: config={configured['layout']!r}, "
+                f"live={live['layout']!r}"
+            )
+        if configured["panes"] != live["panes"]:
+            changes.append(
+                f"window {name!r} pane directories: config={configured['panes']!r}, "
+                f"live={live['panes']!r}"
+            )
+    return sorted(changes)
+
+
+def diff_session(args, logger) -> None:
+    config_file = _local_config_file(args.source)
+    if not config_file.exists():
+        logger.error(f"Local config not found: {config_file}")
+        return None
+
+    try:
+        config_data = _load_yaml_file(config_file)
+        session = _current_tmux_session(libtmux.Server())
+        live_data = _session_config(session, config_file.parent)
+        changes = _session_diff(config_data, live_data)
+    except (libtmux.exc.LibTmuxException, OSError, ValueError, yaml.YAMLError) as exc:
+        logger.error(f"Failed to compare the current tmux session: {exc}")
+        return None
+
+    if not changes:
+        print("Current tmux session matches grem.yaml")
+        return None
+
+    print("Current tmux session differs from grem.yaml:")
+    for change in changes:
+        print(f"- {change}")
+    return None
+
+
+def _merge_session_config(config_data: dict, live_data: dict) -> dict:
+    """Refresh session structure while retaining user-authored pane settings."""
+    merged = deepcopy(config_data)
+    merged_session = merged.setdefault("session", {})
+    live_session = live_data["session"]
+    prior_windows = {
+        window["name"]: window for window in merged_session.get("windows", [])
+    }
+    windows = []
+
+    for live_window in live_session["windows"]:
+        prior_window = deepcopy(prior_windows.get(live_window["name"], {}))
+        prior_panes = prior_window.get("panes", [])
+        panes = []
+        for index, live_pane in enumerate(live_window["panes"]):
+            pane = deepcopy(prior_panes[index]) if index < len(prior_panes) else {}
+            pane["cwd"] = live_pane.get("cwd")
+            pane.setdefault("command", live_pane.get("command"))
+            for key in ("active_command", "title"):
+                if live_pane.get(key) is None:
+                    pane.pop(key, None)
+                else:
+                    pane[key] = live_pane[key]
+            pane.pop("focus", None)
+            if live_pane.get("focus"):
+                pane["focus"] = True
+            panes.append(pane)
+
+        prior_window["name"] = live_window["name"]
+        prior_window["layout"] = live_window["layout"]
+        prior_window["panes"] = panes
+        windows.append(prior_window)
+
+    merged_session["name"] = live_session["name"]
+    merged_session["windows"] = windows
+    if "active_window" in live_session:
+        merged_session["active_window"] = live_session["active_window"]
+    else:
+        merged_session.pop("active_window", None)
+    return merged
+
+
+def update_session(args, logger) -> None:
+    config_file = _local_config_file(args.source)
+    if not config_file.exists():
+        logger.error(f"Local config not found: {config_file}")
+        return None
+
+    try:
+        config_data = _load_yaml_file(config_file)
+        session = _current_tmux_session(libtmux.Server())
+        live_data = _session_config(session, config_file.parent)
+        merged = _merge_session_config(config_data, live_data)
+    except (libtmux.exc.LibTmuxException, OSError, ValueError, yaml.YAMLError) as exc:
+        logger.error(f"Failed to update grem.yaml from the current tmux session: {exc}")
+        return None
+
+    if args.dry_run:
+        print(yaml.safe_dump(merged, sort_keys=False).rstrip())
+        return None
+
+    _write_yaml_file(config_file, merged)
+    logger.info(f"Updated {config_file} from the current tmux session")
+    return None
+
+
+def sync(args, logger) -> None:
+    if not args.replace:
+        logger.error("Refusing to alter a running session. Re-run with --replace.")
+        return None
+
+    source = args.source if args.source is not None else _project_root()
+    parser = gst.Parser(source)
+    cfg = parser.grem()
+    try:
+        cfg.launch(libtmux.Server(), parser.path, replace=True)
+    except libtmux.exc.LibTmuxException as exc:
+        logger.error(f"tmux is unavailable or returned an error: {exc}")
     return None
 
 

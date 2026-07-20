@@ -175,6 +175,28 @@ gremux config create --source session
   snapshot metadata. `--include-start-commands` additionally writes tmux's
   pane startup command as a replay command; use it only when that startup
   command is actually the command you want to rerun.
+
+* To compare the current tmux session with the local configuration without
+  changing either one:
+```sh
+gremux config diff-session
+```
+
+* To refresh window names, pane directories, inferred layouts, and snapshot
+  metadata from the current session while preserving existing pane commands,
+  use:
+```sh
+gremux config update-session
+```
+  `gremux config update-session --dry-run` prints the merged result instead.
+
+* To recreate the current configuration's tmux session, explicitly opt into
+  replacing the running session:
+```sh
+gremux config sync --replace
+```
+  This kills the session with the configured name and recreates it from
+  `grem.yaml`; without `--replace`, `sync` refuses to alter a live session.
 * To open `~/.config/gremux/` in your editor
 ```sh
 gremux config edit

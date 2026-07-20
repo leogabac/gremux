@@ -12,6 +12,10 @@
   windows and pane directories into a project `grem.yaml`
 - session export metadata for active windows/panes, pane titles, and active
   programs, plus `--dry-run` and `--include-start-commands` export options
+- `gremux config diff-session` to compare the live session with `grem.yaml`
+- `gremux config update-session` to merge live pane/window structure while
+  retaining configured pane commands
+- `gremux config sync --replace` to recreate an existing session from YAML
 
 ### Fixed
 

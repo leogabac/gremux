@@ -27,7 +27,7 @@ class Grem:
             session["active_window"] = self.active_window
         return {"session": session}
 
-    def launch(self, server: libtmux.Server, proj_dir):
+    def launch(self, server: libtmux.Server, proj_dir, replace: bool = False):
         """
         Launch a tmux session with the current configuration
 
@@ -38,8 +38,10 @@ class Grem:
         # start the session with my 0th window
         match_session = server.sessions.filter(session_name=self.name)
         if len(match_session) > 0:
-            match_session[0].attach(exit_=True)
-            return None
+            if not replace:
+                match_session[0].attach(exit_=True)
+                return None
+            match_session[0].kill_session()
 
         session = server.new_session(
             session_name=self.name,
