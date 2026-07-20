@@ -79,14 +79,25 @@ def main():
         ),
     )
 
-    config_sub.add_parser(
+    config_create = config_sub.add_parser(
         "create",
-        parents=[source_parent],
-        help="Create a default grem.yaml configuration",
+        help="Create a default or session-derived configuration",
         description=(
-            "Create a default grem.yaml configuration file.\n\n"
-            "The file is created under ~/.config/gremux/default.yaml."
+            "Create the global default configuration, or infer a grem.yaml "
+            "from the current tmux session."
         ),
+    )
+    config_create.add_argument(
+        "--source",
+        "-s",
+        choices=("default", "session"),
+        required=True,
+        help="Use 'default' for the global fallback or 'session' to export the current tmux session.",
+    )
+    config_create.add_argument(
+        "--force",
+        action="store_true",
+        help="Overwrite an existing grem.yaml when exporting a session.",
     )
 
     config_use = config_sub.add_parser(

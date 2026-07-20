@@ -1,0 +1,15 @@
+session:
+  name: gremux
+  windows:
+  - name: coding
+    layout: even-horizontal
+    panes:
+    - cwd: .
+      command: null
+    - cwd: .
+      command: null
+  - name: run
+    layout: null
+    panes:
+    - cwd: .
+      command: null

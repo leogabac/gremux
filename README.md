@@ -98,8 +98,8 @@ See the [templates](./templates/) directory for some examples. Here are a few no
 
 **windows**
 - `name`: the name of the window
-- `layout`: layout to use. Must match [tmux window layouts](https://github.com/tmux/tmux/wiki/Getting-Started#window-layouts) or `null` to do nothing.
-- `panes`: list of panes to split
+- `layout`: layout to use. Must match [tmux window layouts](https://github.com/tmux/tmux/wiki/Getting-Started#window-layouts). Use `null` for a single-pane window; it does not create splits.
+- `panes`: pane definitions. Additional panes are created only when `layout` is set.
 
 **panes**
 - `cwd`: Working directory for the pane. Assumed to be **relative** to the project's root.
@@ -159,6 +159,16 @@ gremux config show
 ```sh
 gremux config create --source default
 ```
+* To export the current tmux session's windows and pane directories to
+  `grem.yaml` at the current Git repository root (or current directory outside
+  a Git repository), run this from within that session:
+```sh
+gremux config create --source session
+```
+  Commands are written as `null`, because they cannot be reliably reconstructed
+  from a running tmux session. Layouts are inferred from the current pane
+  geometry and may need manual refinement. Use `--force` to replace an existing
+  `grem.yaml`.
 * To open `~/.config/gremux/` in your editor
 ```sh
 gremux config edit

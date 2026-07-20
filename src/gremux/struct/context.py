@@ -76,16 +76,16 @@ class Window:
         * `proj_dir`: str
         """
 
-        # ===== LAYOUT ===== #
         layout = self.layout.value
         if layout is not None:
-            tmux_window.select_layout(layout)
+            # ===== SPLITS ===== #
+            for _ in range(len(self.panes) - 1):
+                tmux_window.split()
 
-        # ===== SPLITS ===== #
-        layout = self.layout.value
-        num_panes = len(self.panes)
-        for _ in range(num_panes - 1):
-            tmux_window.split()
+            # ===== LAYOUT ===== #
+            # Apply this after creating panes: tmux cannot arrange a one-pane
+            # window, and each split would otherwise overwrite the selection.
+            tmux_window.select_layout(layout)
 
         # ===== PANE COMMANDS ===== #
 

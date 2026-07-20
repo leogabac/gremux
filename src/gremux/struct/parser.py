@@ -42,7 +42,7 @@ class Parser:
         Set the default to open in case there is no grem.yaml in the project's root.
         """
         panes = [Pane(command=None, cwd=None)]
-        windows = [Window(name="default", layout=Layout(None), panes=panes)]
+        windows = [Window(name="main", layout=Layout(None), panes=panes)]
         grem = Grem(name=Path(self.path).name, windows=windows)
         self.loaded_from = None
 

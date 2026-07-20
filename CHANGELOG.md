@@ -2,7 +2,22 @@
 
 ## Unreleased
 
-- Nothing new yet.
+### Changed
+
+- default windows are now named `main` instead of `0`
+
+### Added
+
+- `gremux config create --source session` to export the current tmux session's
+  windows and pane directories into a project `grem.yaml`
+
+### Fixed
+
+- window layouts are applied after panes are created, so configured horizontal,
+  vertical, and main layouts take effect
+- `layout: null` no longer creates implicit tmux splits
+- session export now assigns layouts to multi-pane windows so their panes are
+  recreated on launch
 
 ## [0.1.3] - 2026-04-28
 

@@ -112,7 +112,7 @@ def create_source(args, logger) -> None:
                 "windows": [
                     {
                         # ide
-                        "name": "0",
+                        "name": "main",
                         "layout": None,
                         "panes": [
                             {
@@ -129,9 +129,122 @@ def create_source(args, logger) -> None:
             yaml.safe_dump(default, fh)
 
         logger.info(f"Written to {default_file}")
+    elif args.source == "session":
+        _create_from_current_session(args, logger)
     else:
         logger.info("Feature not available. Exiting.")
 
+    return None
+
+
+def _project_root() -> Path:
+    """Return the current Git root, falling back to the working directory."""
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--show-toplevel"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        return Path.cwd()
+
+    return Path(result.stdout.strip())
+
+
+def _current_tmux_session(server: libtmux.Server):
+    pane_id = os.environ.get("TMUX_PANE")
+    if pane_id is None:
+        raise ValueError("Run this command from inside the tmux session to export.")
+
+    result = server.cmd("display-message", "-p", "-t", pane_id, "#{session_id}")
+    if not result.stdout:
+        raise ValueError("Could not determine the current tmux session.")
+
+    sessions = server.sessions.filter(session_id=result.stdout[0])
+    if not sessions:
+        raise ValueError("The current tmux session is no longer available.")
+
+    return sessions[0]
+
+
+def _pane_cwd(pane, project_root: Path) -> str:
+    pane_path = Path(pane.pane_current_path)
+    try:
+        relative_path = pane_path.relative_to(project_root)
+    except ValueError:
+        return str(pane_path)
+
+    return "." if relative_path == Path(".") else str(relative_path)
+
+
+def _infer_layout(panes) -> str | None:
+    """Choose a portable named layout from the current pane geometry."""
+    if len(panes) <= 1:
+        return None
+
+    lefts = [int(pane.pane_left) for pane in panes]
+    tops = [int(pane.pane_top) for pane in panes]
+    widths = [int(pane.pane_width) for pane in panes]
+    heights = [int(pane.pane_height) for pane in panes]
+
+    if len(set(lefts)) == 1:
+        return "even-vertical"
+    if len(set(tops)) == 1:
+        return "even-horizontal"
+
+    widest = max(widths)
+    tallest = max(heights)
+    if any(width == widest and height == tallest for width, height in zip(widths, heights)):
+        return "main-vertical" if widest > tallest else "main-horizontal"
+
+    # Gremux supports named tmux layouts rather than opaque geometry strings.
+    # Keep every exported pane by choosing a deterministic tiled-like fallback.
+    return "even-vertical"
+
+
+def _session_config(session, project_root: Path) -> dict:
+    windows = []
+    for window in session.windows:
+        window_panes = list(window.panes)
+        panes = [
+            {
+                "cwd": _pane_cwd(pane, project_root),
+                "command": None,
+            }
+            for pane in window_panes
+        ]
+        windows.append(
+            {
+                "name": window.name,
+                "layout": _infer_layout(window_panes),
+                "panes": panes,
+            }
+        )
+
+    return {"session": {"name": session.name, "windows": windows}}
+
+
+def _create_from_current_session(args, logger) -> None:
+    project_root = _project_root()
+    target_file = project_root / "grem.yaml"
+
+    if target_file.exists() and not args.force:
+        logger.error(
+            f"Refusing to overwrite existing file: {target_file}. "
+            "Use --force to replace it."
+        )
+        return None
+
+    try:
+        session = _current_tmux_session(libtmux.Server())
+        data = _session_config(session, project_root)
+        _write_yaml_file(target_file, data)
+    except (libtmux.exc.LibTmuxException, OSError, ValueError) as exc:
+        logger.error(f"Failed to export the current tmux session: {exc}")
+        return None
+
+    logger.info(f"Exported current tmux session to {target_file}")
     return None
 
 
