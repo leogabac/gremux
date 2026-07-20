@@ -203,17 +203,25 @@ def _infer_layout(panes) -> str | None:
     return "even-vertical"
 
 
-def _session_config(session, project_root: Path) -> dict:
+def _session_config(
+    session,
+    project_root: Path,
+    include_start_commands: bool = False,
+) -> dict:
     windows = []
     for window in session.windows:
         window_panes = list(window.panes)
-        panes = [
-            {
+        panes = []
+        for pane in window_panes:
+            pane_data = {
                 "cwd": _pane_cwd(pane, project_root),
-                "command": None,
+                "command": pane.pane_start_command if include_start_commands else None,
+                "active_command": pane.pane_current_command,
+                "title": pane.pane_title,
             }
-            for pane in window_panes
-        ]
+            if pane.pane_active == "1":
+                pane_data["focus"] = True
+            panes.append(pane_data)
         windows.append(
             {
                 "name": window.name,
@@ -222,14 +230,19 @@ def _session_config(session, project_root: Path) -> dict:
             }
         )
 
-    return {"session": {"name": session.name, "windows": windows}}
+    data = {"session": {"name": session.name, "windows": windows}}
+    for window_index, window in enumerate(session.windows):
+        if window.window_active == "1":
+            data["session"]["active_window"] = window_index
+            break
+    return data
 
 
 def _create_from_current_session(args, logger) -> None:
     project_root = _project_root()
     target_file = project_root / "grem.yaml"
 
-    if target_file.exists() and not args.force:
+    if target_file.exists() and not args.force and not args.dry_run:
         logger.error(
             f"Refusing to overwrite existing file: {target_file}. "
             "Use --force to replace it."
@@ -238,7 +251,14 @@ def _create_from_current_session(args, logger) -> None:
 
     try:
         session = _current_tmux_session(libtmux.Server())
-        data = _session_config(session, project_root)
+        data = _session_config(
+            session,
+            project_root,
+            include_start_commands=args.include_start_commands,
+        )
+        if args.dry_run:
+            print(yaml.safe_dump(data, sort_keys=False).rstrip())
+            return None
         _write_yaml_file(target_file, data)
     except (libtmux.exc.LibTmuxException, OSError, ValueError) as exc:
         logger.error(f"Failed to export the current tmux session: {exc}")

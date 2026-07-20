@@ -99,6 +99,16 @@ def main():
         action="store_true",
         help="Overwrite an existing grem.yaml when exporting a session.",
     )
+    config_create.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Print the inferred session configuration without writing grem.yaml.",
+    )
+    config_create.add_argument(
+        "--include-start-commands",
+        action="store_true",
+        help="Export tmux pane startup commands as replay commands.",
+    )
 
     config_use = config_sub.add_parser(
         "use",

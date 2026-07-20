@@ -99,7 +99,10 @@ class Parser:
         if self.session_name is None:
             self.session_name = session["name"]
 
-        grem = Grem(name=self.session_name)
+        grem = Grem(
+            name=self.session_name,
+            active_window=session.get("active_window"),
+        )
 
         for cur_window in session["windows"]:
             layout_value = cur_window.get("layout", None)
@@ -109,6 +112,9 @@ class Parser:
                 pane_obj = Pane(
                     command=self._normalize_command(cur_pane.get("command")),
                     cwd=cur_pane.get("cwd"),
+                    focus=cur_pane.get("focus", False),
+                    active_command=cur_pane.get("active_command"),
+                    title=cur_pane.get("title"),
                 )
                 window_obj.add_pane(pane_obj)
 

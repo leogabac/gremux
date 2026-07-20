@@ -169,6 +169,12 @@ gremux config create --source session
   from a running tmux session. Layouts are inferred from the current pane
   geometry and may need manual refinement. Use `--force` to replace an existing
   `grem.yaml`.
+
+  Add `--dry-run` to inspect the generated YAML without writing it. The export
+  records each pane's active program, title, active pane, and active window as
+  snapshot metadata. `--include-start-commands` additionally writes tmux's
+  pane startup command as a replay command; use it only when that startup
+  command is actually the command you want to rerun.
 * To open `~/.config/gremux/` in your editor
 ```sh
 gremux config edit

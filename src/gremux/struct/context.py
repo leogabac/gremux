@@ -18,6 +18,7 @@ class Layout(Enum):
     EVEN_VERTICAL = "even-vertical"
     MAIN_VERTICAL = "main-vertical"
     MAIN_HORIZONTAL = "main-horizontal"
+    TILED = "tiled"
     NONE = None
 
 
@@ -31,6 +32,8 @@ class Pane:
     cwd: str | None = None
     focus: bool = False
     env: dict[str, str] = field(default_factory=dict)
+    active_command: str | None = None
+    title: str | None = None
 
 
 @dataclass
@@ -58,6 +61,12 @@ class Window:
                 pane_data["cwd"] = pane.cwd
 
             pane_data["command"] = pane.command
+            if pane.focus:
+                pane_data["focus"] = True
+            if pane.active_command is not None:
+                pane_data["active_command"] = pane.active_command
+            if pane.title is not None:
+                pane_data["title"] = pane.title
             panes.append(pane_data)
 
         return {
@@ -106,6 +115,9 @@ class Window:
                     prior_pane.send_keys(cmd, enter=True)
 
             prior_pane.send_keys("clear", enter=True)
+
+            if tg_pane.focus:
+                tmux_window.select_pane(prior_pane.pane_id)
 
             # modify window width and all that
 

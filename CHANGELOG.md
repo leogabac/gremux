@@ -10,6 +10,8 @@
 
 - `gremux config create --source session` to export the current tmux session's
   windows and pane directories into a project `grem.yaml`
+- session export metadata for active windows/panes, pane titles, and active
+  programs, plus `--dry-run` and `--include-start-commands` export options
 
 ### Fixed
 

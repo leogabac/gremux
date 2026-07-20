@@ -12,18 +12,20 @@ class Grem:
 
     name: str
     windows: List[Window] = field(default_factory=list)
+    active_window: int | None = None
 
     def add_window(self, window: Window):
         """Add a Window to the configuration file"""
         self.windows.append(window)
 
     def to_dict(self) -> dict:
-        return {
-            "session": {
-                "name": self.name,
-                "windows": [window.to_dict() for window in self.windows],
-            }
+        session = {
+            "name": self.name,
+            "windows": [window.to_dict() for window in self.windows],
         }
+        if self.active_window is not None:
+            session["active_window"] = self.active_window
+        return {"session": session}
 
     def launch(self, server: libtmux.Server, proj_dir):
         """
@@ -48,6 +50,7 @@ class Grem:
         )
 
         # setup and create rest of the windows
+        created_windows = []
         for i, cfg_window in enumerate(self.windows):
             if i == 0:
                 tmux_window = session.windows[0]
@@ -55,6 +58,10 @@ class Grem:
                 tmux_window = session.new_window(window_name=cfg_window.name)
 
             cfg_window.apply(tmux_window, proj_dir)
+            created_windows.append(tmux_window)
+
+        if self.active_window is not None and 0 <= self.active_window < len(created_windows):
+            session.select_window(created_windows[self.active_window].window_id)
 
         session.attach(exit_=True)
 
