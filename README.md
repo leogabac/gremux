@@ -171,10 +171,12 @@ gremux config create --source session
   `grem.yaml`.
 
   Add `--dry-run` to inspect the generated YAML without writing it. The export
-  records each pane's active program, title, active pane, and active window as
-  snapshot metadata. `--include-start-commands` additionally writes tmux's
-  pane startup command as a replay command; use it only when that startup
-  command is actually the command you want to rerun.
+  records each window's source index and each pane's active program, title,
+  active pane, and active window as snapshot metadata. It infers
+  `even-*`, `main-*`, and `tiled` layouts from the pane geometry.
+  `--include-start-commands` additionally writes tmux's pane startup command
+  as a replay command; use it only when that startup command is actually the
+  command you want to rerun.
 
 * To compare the current tmux session with the local configuration without
   changing either one:

@@ -194,14 +194,15 @@ def _infer_layout(panes) -> str | None:
     if len(set(tops)) == 1:
         return "even-horizontal"
 
-    widest = max(widths)
-    tallest = max(heights)
-    if any(width == widest and height == tallest for width, height in zip(widths, heights)):
-        return "main-vertical" if widest > tallest else "main-horizontal"
+    total_width = max(left + width for left, width in zip(lefts, widths))
+    total_height = max(top + height for top, height in zip(tops, heights))
+    if any(height == total_height for height in heights):
+        return "main-vertical"
+    if any(width == total_width for width in widths):
+        return "main-horizontal"
 
     # Gremux supports named tmux layouts rather than opaque geometry strings.
-    # Keep every exported pane by choosing a deterministic tiled-like fallback.
-    return "even-vertical"
+    return "tiled"
 
 
 def _session_config(
@@ -226,6 +227,7 @@ def _session_config(
         windows.append(
             {
                 "name": window.name,
+                "index": int(window.window_index),
                 "layout": _infer_layout(window_panes),
                 "panes": panes,
             }
@@ -379,6 +381,7 @@ def _merge_session_config(config_data: dict, live_data: dict) -> dict:
             panes.append(pane)
 
         prior_window["name"] = live_window["name"]
+        prior_window["index"] = live_window["index"]
         prior_window["layout"] = live_window["layout"]
         prior_window["panes"] = panes
         windows.append(prior_window)
