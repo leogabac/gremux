@@ -1,0 +1,198 @@
+Metadata-Version: 2.4
+Name: gremux
+Version: 0.1.3
+Summary: A declarative tmux session manager
+Author-email: leogabac <leogabac@proton.me>
+License: GPLv2
+Project-URL: Homepage, https://github.com/leogabac/gremux
+Project-URL: Repository, https://github.com/leogabac/gremux
+Project-URL: Issues, https://github.com/leogabac/gremux/issues
+Keywords: tmux,terminal,session-manager,cli,developer-tools
+Classifier: Development Status :: 3 - Alpha
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: GNU General Public License v2 (GPLv2)
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Software Development :: Build Tools
+Classifier: Topic :: System :: Shells
+Classifier: Topic :: Utilities
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: libtmux>=0.39
+Requires-Dist: pyyaml>=6.0
+Requires-Dist: questionary>=2.0
+Dynamic: license-file
+
+# gremux
+
+![Static Badge](https://img.shields.io/badge/repo-gremux-blue?logo=github) ![Static Badge](https://img.shields.io/badge/status-alpha-orange?logo=github)
+
+![PyPI - Version](https://img.shields.io/pypi/v/gremux) ![AUR Version](https://img.shields.io/aur/version/gremux)
+
+A declarative [tmux](https://github.com/tmux/tmux) session manager.
+
+> [!NOTE]
+> This project is in development. Basic features are implemented, but there is still a long roadmap to cover.
+> If you have any feature requests, leave an _issue_.
+
+gremux automates the process of launching a `tmux` session exactly how you want it in a _declarative_ way. That is, given a static configuration file `grem.yaml`, `gremux` will parse it and attach you to a session that matches that setup.
+
+This project started when I got tired of having to manually set up my `tmux` panes and windows each time I rebooted my laptop. Thus, I can spend _many hours_ automating a process that takes literal seconds.
+
+Here is a list of a few similar projects:
+* [tmuxp](https://github.com/tmux-python/tmuxp): Session manager for tmux, build on libtmux.
+* [tmuxinator](https://github.com/tmuxinator/tmuxinator): Manage complex tmux sessions easily
+* [disconnected](https://github.com/austinwilcox/disconnected): Simple tmux session creator
+
+**Why choose `gremux`?**
+
+You don't have to if you don't want. That's the beauty of FOSS. This project was started as something to kill the time while waiting for my experiments during my PhD. I use it as my main tool, and it would be amazing if other people found it useful.
+
+Additionally, I do projects in order to teach myself some design patterns to _eventually_ be a better programmer. I don't mind reinventing the wheel from time to time in order to learn something new.
+
+> [!NOTE]
+> The name _gremux_.
+> I am obsessed with VTubers, and put references everywhere I can. This is a reference to [Gigi Murin](https://www.youtube.com/@holoen_gigimurin), whose fanbase are called _grems_.
+
+## Features
+
+* Declarative YAML tmux session configuration on a per-project basis
+* Interactive project sessionizer inspired by [ThePrimeagen's](https://github.com/ThePrimeagen/tmux-sessionizer) script
+* Saved config templates under `~/.config/gremux/templates/`
+* Interactive picker for attaching to existing tmux sessions
+
+## Installation
+
+1. Install `tmux` and `fzf` from your package manager
+2. Install with `pip`
+3. Optional: install the `questionary` package.
+
+```sh 
+pip install gremux
+```
+or for arch-based distributions, use some AUR helper like `paru`
+```sh
+paru -S gremux
+```
+
+Run `gremux` to open the sessionizer or be prompted to create `places.yaml`
+
+If you want to use the interactive attach picker or `config use --interactive`, make sure `questionary` is installed as well.
+
+## Setup
+
+### Common places
+
+You must create the (global config) file `~/.config/gremux/places.yaml`. To create it, run
+```sh
+gremux places create --source default
+```
+This will create a basic `places.yaml` with your home directory. To add more places, you can manually edit the file or run
+```sh
+gremux places create --add dir1 dir2 dir3
+```
+
+> [!TIP]
+> If you use `zoxide`, then you can choose to use the database as a source
+> ``` sh
+> gremux places create --source zoxide
+> ```
+> And optionally you can add the `--maximum N` flag to only add the first $N$ elements from the database.
+
+Here is an example of how it should look like.
+```yaml
+places:
+  - "~"
+  - "~/Documents/"
+  - "~/Documents/mnt/"
+  - "~/Documents/phd/"
+  - "~/Documents/projects/"
+```
+which is intended to be the list of the common places you visit in your system. This information is used by the _sessionizer_ to know where to look
+
+### Configuration file
+
+tmux sessions are launched by parsing a configuration file called `grem.yaml` that is intended to be placed on your project's root. If no file is found, it will default to a single window-pane setup.
+
+See the [templates](./templates/) directory for some examples. Here are a few notes of the keywords
+
+**session**
+- `name`: the name of the session
+- `windows`: list of windows to open
+
+
+**windows**
+- `name`: the name of the window
+- `layout`: layout to use. Must match [tmux window layouts](https://github.com/tmux/tmux/wiki/Getting-Started#window-layouts) or `null` to do nothing.
+- `panes`: list of panes to split
+
+**panes**
+- `cwd`: Working directory for the pane. Assumed to be **relative** to the project's root.
+- `command`: command or list of commands to execute in the current pane. They are executed sequentially.
+
+## Usage
+
+There are two basic ways to launch a session:
+
+1. Run `gremux`, type your project's directory and hit `<enter>`. This will use the project's `grem.yaml` if available, otherwise, it will default to a generic one window/panel default.
+2. If you are alredy somewhere, run
+```sh
+gremux config up --source /path/to/grem.yaml
+```
+if no `--source` is provided, it defaults to `pwd`
+
+To attach to an already running tmux session interactively, run
+```sh
+gremux attach
+```
+To use tmux's default attach behavior directly, run
+```sh
+gremux attach --last
+```
+
+## Template Workflow
+
+Save the current project's `grem.yaml` as a reusable template:
+```sh
+gremux config save NAME
+```
+
+Bring that template into another project:
+```sh
+gremux config use NAME
+```
+
+Or choose one interactively:
+```sh
+gremux config use --interactive
+```
+
+List available templates:
+```sh
+gremux config list
+```
+
+When saving, `session.name` is rewritten to the template name. When using a template, `session.name` is rewritten to the current directory name.
+
+## Other Useful Commands
+
+* To see the configuration that is going to be used, run
+```sh
+gremux config show
+```
+* To create the default configuration under `~/.config/gremux/default.yaml`
+```sh
+gremux config create --source default
+```
+* To open `~/.config/gremux/` in your editor
+```sh
+gremux config edit
+```
+  This uses the editor defined by `$EDITOR`.

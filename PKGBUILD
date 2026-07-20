@@ -21,7 +21,7 @@ makedepends=(
   'python-wheel'
 )
 source=(
-  "https://files.pythonhosted.org/packages/source/g/${pkgname}/${pkgname}-${pkgver}.tar.gz"
+  "https://pypi.io/packages/source/${pkgname:0:1}/${pkgname}/${pkgname}-${pkgver}.tar.gz"
 )
 sha256sums=('SKIP')
 
